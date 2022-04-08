@@ -20,7 +20,7 @@
  <form method="post" action="{{route('user.doLogin')}}">
    @csrf
   <div class="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Email address</label>
+    <label for="exampleInputEmail1" class="form-label">Email address1</label>
     <input type="email" name="email" class="form-control" value={{old('email')}} >
     <div id="emailHelp" class="form-text"></div>
   </div>

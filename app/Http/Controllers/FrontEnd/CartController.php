@@ -7,22 +7,24 @@ use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-// use Auth;
 class CartController extends Controller
 {
     public function addtocart(Request $request)
     {
-       
+
+
         $prod_id=$request->prod_id1;
         $product_qty=$request->product_qty1;
         
-        if(Auth::check())
+        if(auth()->guard('web')->check())
         {
+          $user_id=auth()->guard('web')->user()->id;
+
           $prod=Product::where('id',$prod_id)->first();
           //  return response()->json(['status'=>$prod->id.'+ name>>'.$prod->name]);
           if($prod)
           {
-              if(Cart::where('prod_id',$prod_id)->where('user_id',Auth::id())->exists())
+              if(Cart::where('prod_id',$prod_id)->where('user_id',$user_id)->exists())
               {
                 return response()->json(['status'=>$prod->name.'items Already Exists']);
               }
@@ -30,7 +32,7 @@ class CartController extends Controller
               {
                 $cart=new Cart();
                 $cart->prod_id=$prod_id;
-                $cart->user_id=Auth::id();
+                $cart->user_id=$user_id;
                 $cart->prod_qty=$product_qty;
                 $cart->save();
                 return response()->json(['status'=>$prod->name.'Add To Cart Succes']);
@@ -50,7 +52,8 @@ class CartController extends Controller
 
     public function viewcart()
     {
-       $cartitems=Cart::where('user_id',Auth::id())->get();
+      $user_id=auth()->guard('web')->user()->id;
+      $cartitems=Cart::where('user_id',$user_id)->get();
      //  return $cartitems;
        return view('front.carts.cart',compact('cartitems'));
 
@@ -59,13 +62,15 @@ class CartController extends Controller
     public function deleteproduct(Request $request)
     {
 
-      if(Auth::check())
+      if(auth()->guard('web')->check())
        {
+        $user_id=auth()->guard('web')->user()->id;
+
         $prod_id=$request->prod_id1;
-        if(Cart::where('prod_id',$prod_id)->where('user_id',Auth::id())->exists())
+        if(Cart::where('prod_id',$prod_id)->where('user_id',$user_id)->exists())
         {
 
-          $cartitem=Cart::where('prod_id',$prod_id)->where('user_id',Auth::id())->first();
+          $cartitem=Cart::where('prod_id',$prod_id)->where('user_id',$user_id)->first();
           $cartitem->delete();
           return response()->json(['status' => $prod_id. "item Delte Sucees"]);
 
@@ -84,11 +89,13 @@ class CartController extends Controller
 
       $prod_id=$request->prod_id1;
       $prod_qty=$request->prod_qty1;
-      if(Auth::check())
+      if(auth()->guard('web')->check())
       {
-        if(Cart::where('prod_id',$prod_id)->where('user_id',Auth::id())->exists())
+        $user_id=auth()->guard('web')->user()->id;
+
+        if(Cart::where('prod_id',$prod_id)->where('user_id',$user_id)->exists())
         {
-          $cart=Cart::where('prod_id',$prod_id)->where('user_id',Auth::id())->first();
+          $cart=Cart::where('prod_id',$prod_id)->where('user_id',$user_id)->first();
            $cart->prod_qty=$prod_qty;
            $cart->update();
            return response()->json(['status'=>'Quantity Updated']);
@@ -99,7 +106,8 @@ class CartController extends Controller
 
     public function cartcount()
     {
-       $cartcount=Cart::where('user_id',Auth::id())->count();
+      $user_id=auth()->guard('web')->user()->id;
+      $cartcount=Cart::where('user_id',$user_id)->count();
        return response()->json(['count'=>$cartcount]);
     }
 

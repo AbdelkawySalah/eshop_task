@@ -11,13 +11,15 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders=Order::where('user_id',Auth::id())->get();
+        $user_id=auth()->guard('web')->user()->id;
+        $orders=Order::where('user_id',$user_id)->get();
         return view('front.orders.index',compact('orders'));
     }
 
     public function vieworder($id)
     {
-        $order=Order::where('id',$id)->where('user_id',Auth::id())->first();
+        $user_id=auth()->guard('web')->user()->id;
+        $order=Order::where('id',$id)->where('user_id',$user_id)->first();
         return view('front.orders.view-order',compact('order'));
 
     }
